@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Torneo Americana · Pádel</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #1a8c4e;
+    --green-light: #25b565;
+    --green-dark: #0f5c32;
+    --court: #2d6a3f;
+    --gold: #f0b429;
+    --bg: #0a1a10;
+    --surface: #111f16;
+    --surface2: #162b1e;
+    --border: #1e3d28;
+    --text: #e8f5ed;
+    --muted: #6b9478;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px 48px;
+  }
+
+  /* Background texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse 80% 60% at 50% -10%, rgba(26,140,78,0.18) 0%, transparent 70%),
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(255,255,255,0.02) 39px, rgba(255,255,255,0.02) 40px);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; }
+
+  /* HEADER */
+  header { text-align: center; margin-bottom: 40px; }
+
+  .badge {
+    display: inline-block;
+    background: var(--green-dark);
+    border: 1px solid var(--green);
+    color: var(--green-light);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(52px, 12vw, 96px);
+    line-height: 0.9;
+    letter-spacing: 2px;
+    background: linear-gradient(135deg, #e8f5ed 30%, var(--green-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
+
+  /* PLAYERS GRID */
+  .section-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .players-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-bottom: 40px;
+  }
+
+  .player-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 10px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 500;
+    transition: border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .player-chip::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--green-light);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .player-chip:hover { border-color: var(--green); }
+  .player-chip:hover::before { opacity: 1; }
+
+  .player-num {
+    display: block;
+    font-size: 20px;
+    font-family: 'Bebas Neue', sans-serif;
+    color: var(--green-light);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  /* ROUNDS */
+  .rounds { display: flex; flex-direction: column; gap: 28px; margin-bottom: 40px; }
+
+  .round-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+  }
+
+  .round-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .round-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--green-light);
+    line-height: 1;
+    min-width: 28px;
+  }
+
+  .round-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .round-sub {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .round-dot {
+    width: 8px; height: 8px;
+    background: var(--green-light);
+    border-radius: 50%;
+    margin-left: auto;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  .matches { padding: 16px 20px; display: flex; flex-direction: column; gap: 10px; }
+
+  .match {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    transition: border-color 0.2s;
+  }
+
+  .match:hover { border-color: var(--green); }
+
+  .team {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .team.right { align-items: flex-end; text-align: right; }
+
+  .team-player {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .team-player span {
+    display: inline-block;
+    background: rgba(37,181,101,0.12);
+    color: var(--green-light);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 4px;
+    margin-right: 6px;
+  }
+
+  .team.right .team-player span { margin-right: 0; margin-left: 6px; }
+
+  .vs {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    color: var(--muted);
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  /* SCORE BOX inside match */
+  .score-area {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4px;
+  }
+
+  .score-input-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .score-input {
+    width: 40px;
+    height: 32px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .score-input:focus { border-color: var(--green-light); }
+
+  .score-dash { color: var(--muted); font-family: 'Bebas Neue', sans-serif; font-size: 20px; }
+
+  /* STANDINGS TABLE */
+  .standings-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 40px;
+  }
+
+  .standings-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 20px;
+    background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .trophy { font-size: 22px; }
+
+  .standings-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    color: var(--text);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead th {
+    padding: 10px 20px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted);
+    text-align: left;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+
+  thead th:not(:first-child):not(:nth-child(2)) { text-align: center; }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--surface2); }
+
+  td {
+    padding: 12px 20px;
+    font-size: 13px;
+  }
+
+  td:not(:first-child):not(:nth-child(2)) { text-align: center; color: var(--muted); }
+
+  .pos {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    color: var(--muted);
+    width: 40px;
+  }
+
+  .pos.gold { color: var(--gold); }
+  .pos.silver { color: #b0bec5; }
+  .pos.bronze { color: #cd7f32; }
+
+  .player-name { font-weight: 500; }
+
+  .pts {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    color: var(--green-light) !important;
+  }
+
+  .update-btn {
+    display: block;
+    margin: 0 auto 0;
+    background: var(--green);
+    color: white;
+    border: none;
+    padding: 12px 32px;
+    border-radius: 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .update-btn:hover { background: var(--green-light); transform: translateY(-1px); }
+  .update-btn:active { transform: translateY(0); }
+
+  .undo-btn {
+    margin-top: 10px;
+    background: #2f4d5c;
+  }
+
+  .undo-btn:hover { background: #3f667a; }
+
+  .reset-btn {
+    margin-top: 10px;
+    background: #5c2a2a;
+  }
+
+  .reset-btn:hover { background: #7a3535; }
+
+  .btn-row { padding: 16px 20px; background: var(--surface2); border-top: 1px solid var(--border); }
+
+  /* Field line decoration */
+  .field-lines {
+    display: flex;
+    justify-content: center;
+    margin: 32px 0 20px;
+    opacity: 0.15;
+  }
+
+  .field-lines svg { width: 120px; }
+
+  @media (max-width: 600px) {
+    .players-grid { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .player-chip { padding: 10px 6px; font-size: 12px; }
+    .team-player { font-size: 12px; }
+    .match { padding: 10px 12px; gap: 8px; }
+    td { padding: 10px 12px; }
+    thead th { padding: 8px 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="badge">Americana · 2025</div>
+    <h1>TORNEO<br>PÁDEL</h1>
+    <p class="subtitle">8 jugadores · 7 rondas · Todos contra todos</p>
+  </header>
+
+  <div class="section-label">Participantes</div>
+  <div class="players-grid" id="players-grid"></div>
+
+  <div class="section-label">Cuadro de partidos</div>
+  <div class="rounds" id="rounds"></div>
+
+  <div class="standings-card">
+    <div class="standings-header">
+      <span class="trophy">🏆</span>
+      <span class="standings-title">Clasificación</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Jugador</th>
+          <th>PJ</th>
+          <th>PG</th>
+          <th>PP</th>
+          <th>JF</th>
+          <th>JC</th>
+          <th>Pts</th>
+        </tr>
+      </thead>
+      <tbody id="standings-body"></tbody>
+    </table>
+    <div class="btn-row">
+      <button class="update-btn" onclick="updateStandings()">↻ Actualizar Clasificación</button>
+      <button class="update-btn undo-btn" onclick="undoLastChange()">↶ Borrar última modificación</button>
+      <button class="update-btn reset-btn" onclick="resetScores()">🗑 Borrar resultados</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const PLAYERS = ['José', 'Matas', 'Martí', 'Adri', 'Alex', 'Sergi', 'Pol', 'David'];
+
+// Americana rounds for 8 players
+// Each round: 2 matches, each match = pair vs pair
+// Using round-robin pairing so everyone partners with everyone once
+// 7 rounds, 2 courts each round → 28 total games
+const ROUNDS = [
+  { matches: [['José','Matas','Martí','Adri'], ['Alex','Sergi','Pol','David']] },
+  { matches: [['José','Martí','Matas','Adri'], ['Alex','Pol','Sergi','David']] },
+  { matches: [['José','Adri','Matas','Martí'], ['Alex','David','Sergi','Pol']] },
+  { matches: [['José','Alex','Matas','Sergi'], ['Martí','Pol','Adri','David']] },
+  { matches: [['José','Sergi','Matas','Alex'], ['Martí','David','Adri','Pol']] },
+  { matches: [['José','Pol','Adri','Alex'], ['Matas','Sergi','Martí','David']] },
+  { matches: [['José','David','Adri','Sergi'], ['Matas','Pol','Martí','Alex']] },
+];
+
+// scores[round][match] = {a: sets team A, b: sets team B}
+const STORAGE_KEY = 'torneoPadelScores_v1';
+const HISTORY_KEY = 'torneoPadelHistory_v1';
+
+function createEmptyScores() {
+  return ROUNDS.map(r => r.matches.map(() => ({ a: '', b: '' })));
+}
+
+function loadScores() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (!saved) return createEmptyScores();
+
+    const parsed = JSON.parse(saved);
+
+    // Comprovació simple perquè no peti si algun dia canvies rondes o jugadors
+    if (!Array.isArray(parsed) || parsed.length !== ROUNDS.length) {
+      return createEmptyScores();
+    }
+
+    return parsed;
+  } catch (e) {
+    return createEmptyScores();
+  }
+}
+
+function persistScores() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(scores));
+}
+
+function loadHistory() {
+  try {
+    const saved = localStorage.getItem(HISTORY_KEY);
+    if (!saved) return [];
+    const parsed = JSON.parse(saved);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function persistHistory() {
+  localStorage.setItem(HISTORY_KEY, JSON.stringify(scoreHistory));
+}
+
+const scores = loadScores();
+const scoreHistory = loadHistory();
+
+function init() {
+  // Players grid
+  const grid = document.getElementById('players-grid');
+  PLAYERS.forEach((p, i) => {
+    grid.innerHTML += `<div class="player-chip"><span class="player-num">${i+1}</span>${p}</div>`;
+  });
+
+  // Rounds
+  const roundsEl = document.getElementById('rounds');
+  ROUNDS.forEach((round, ri) => {
+    const card = document.createElement('div');
+    card.className = 'round-card';
+    card.innerHTML = `
+      <div class="round-header">
+        <span class="round-num">${ri + 1}</span>
+        <div>
+          <div class="round-title">Ronda ${ri + 1}</div>
+          <div class="round-sub">${round.matches.length} partidos · Pista ${ri+1 <= 4 ? 'A y B' : 'A y B'}</div>
+        </div>
+        <div class="round-dot"></div>
+      </div>
+      <div class="matches" id="r${ri}"></div>
+    `;
+    roundsEl.appendChild(card);
+
+    const matchesEl = card.querySelector(`#r${ri}`);
+    round.matches.forEach((m, mi) => {
+      const [p1, p2, p3, p4] = m;
+      const matchEl = document.createElement('div');
+      matchEl.className = 'match';
+      matchEl.innerHTML = `
+        <div class="team">
+          <div class="team-player"><span>A</span>${p1}</div>
+          <div class="team-player"><span>A</span>${p2}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+          <div class="vs">VS</div>
+          <div class="score-area">
+            <input class="score-input" type="number" min="0" max="9" placeholder="—"
+              id="score_${ri}_${mi}_a" value="${scores[ri][mi].a}" onchange="saveScore(${ri},${mi})">
+            <span class="score-dash">-</span>
+            <input class="score-input" type="number" min="0" max="9" placeholder="—"
+              id="score_${ri}_${mi}_b" value="${scores[ri][mi].b}" onchange="saveScore(${ri},${mi})">
+          </div>
+        </div>
+        <div class="team right">
+          <div class="team-player">${p3}<span>B</span></div>
+          <div class="team-player">${p4}<span>B</span></div>
+        </div>
+      `;
+      matchesEl.appendChild(matchEl);
+    });
+  });
+
+  updateStandings();
+}
+
+function saveScore(ri, mi) {
+  const a = document.getElementById(`score_${ri}_${mi}_a`).value;
+  const b = document.getElementById(`score_${ri}_${mi}_b`).value;
+
+  const previous = { ...scores[ri][mi] };
+  const next = { a, b };
+
+  // Si no ha canviat res, no guardem historial
+  if (previous.a === next.a && previous.b === next.b) {
+    return;
+  }
+
+  scoreHistory.push({
+    ri,
+    mi,
+    previous,
+    next,
+    time: new Date().toISOString()
+  });
+
+  // Evitem que l'historial creixi infinitament
+  if (scoreHistory.length > 100) {
+    scoreHistory.shift();
+  }
+
+  scores[ri][mi] = next;
+  persistScores();
+  persistHistory();
+  updateStandings();
+}
+
+function undoLastChange() {
+  if (scoreHistory.length === 0) {
+    alert('No hay ninguna modificación anterior para borrar.');
+    return;
+  }
+
+  const lastChange = scoreHistory.pop();
+  const { ri, mi, previous } = lastChange;
+
+  scores[ri][mi] = previous;
+
+  const inputA = document.getElementById(`score_${ri}_${mi}_a`);
+  const inputB = document.getElementById(`score_${ri}_${mi}_b`);
+
+  if (inputA) inputA.value = previous.a;
+  if (inputB) inputB.value = previous.b;
+
+  persistScores();
+  persistHistory();
+  updateStandings();
+}
+
+function resetScores() {
+  if (!confirm('¿Seguro que quieres borrar todos los resultados?')) return;
+
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(HISTORY_KEY);
+  scoreHistory.length = 0;
+
+  scores.forEach((round, ri) => {
+    round.forEach((match, mi) => {
+      scores[ri][mi] = { a: '', b: '' };
+
+      const inputA = document.getElementById(`score_${ri}_${mi}_a`);
+      const inputB = document.getElementById(`score_${ri}_${mi}_b`);
+
+      if (inputA) inputA.value = '';
+      if (inputB) inputB.value = '';
+    });
+  });
+
+  updateStandings();
+}
+
+function updateStandings() {
+  const stats = {};
+  PLAYERS.forEach(p => stats[p] = { pj:0, pg:0, pp:0, jf:0, jc:0, pts:0 });
+
+  ROUNDS.forEach((round, ri) => {
+    round.matches.forEach((m, mi) => {
+      const [p1, p2, p3, p4] = m;
+      const teamA = [p1, p2];
+      const teamB = [p3, p4];
+      const sa = parseInt(scores[ri][mi].a);
+      const sb = parseInt(scores[ri][mi].b);
+
+      if (!isNaN(sa) && !isNaN(sb)) {
+        const aWon = sa > sb;
+        const bWon = sb > sa;
+
+        teamA.forEach(p => {
+          stats[p].pj++;
+          stats[p].jf += sa; stats[p].jc += sb;
+          if (aWon) { stats[p].pg++; stats[p].pts += 2; }
+          else if (bWon) { stats[p].pp++; }
+          else { stats[p].pts += 1; } // empate
+        });
+        teamB.forEach(p => {
+          stats[p].pj++;
+          stats[p].jf += sb; stats[p].jc += sa;
+          if (bWon) { stats[p].pg++; stats[p].pts += 2; }
+          else if (aWon) { stats[p].pp++; }
+          else { stats[p].pts += 1; }
+        });
+      }
+    });
+  });
+
+  const sorted = PLAYERS.slice().sort((a, b) => {
+    if (stats[b].pts !== stats[a].pts) return stats[b].pts - stats[a].pts;
+    const diffA = stats[a].jf - stats[a].jc;
+    const diffB = stats[b].jf - stats[b].jc;
+    return diffB - diffA;
+  });
+
+  const tbody = document.getElementById('standings-body');
+  tbody.innerHTML = '';
+  const medals = ['gold', 'silver', 'bronze'];
+  sorted.forEach((p, i) => {
+    const s = stats[p];
+    const posClass = i < 3 ? medals[i] : '';
+    tbody.innerHTML += `
+      <tr>
+        <td class="pos ${posClass}">${i+1}</td>
+        <td class="player-name">${p}</td>
+        <td>${s.pj}</td>
+        <td>${s.pg}</td>
+        <td>${s.pp}</td>
+        <td>${s.jf}</td>
+        <td>${s.jc}</td>
+        <td class="pts">${s.pts}</td>
+      </tr>
+    `;
+  });
+}
+
+init();
+</script>
+</body>
+</html>
